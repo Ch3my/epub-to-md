@@ -35,7 +35,7 @@ $PYINSTALLER_CMD --onefile \
     --windowed \
     --name "EPUB_to_MD_GUI" \
     --add-data "epub_converter.py:." \
-    --icon=NONE \
+    --icon=app_icon.ico \
     epub_to_md_gui.py
 
 echo ""
@@ -43,7 +43,7 @@ echo "Building CLI executable..."
 $PYINSTALLER_CMD --onefile \
     --name "epub_to_md" \
     --add-data "epub_converter.py:." \
-    --icon=NONE \
+    --icon=app_icon.ico \
     epub_to_md.py
 
 echo ""

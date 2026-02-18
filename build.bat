@@ -42,11 +42,11 @@ exit /b 1
 echo.
 
 echo Building GUI executable...
-%PYINSTALLER_CMD% --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py;." --icon=NONE epub_to_md_gui.py
+%PYINSTALLER_CMD% --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py;." --icon=app_icon.ico epub_to_md_gui.py
 
 echo.
 echo Building CLI executable...
-%PYINSTALLER_CMD% --onefile --name "epub_to_md" --add-data "epub_converter.py;." --icon=NONE epub_to_md.py
+%PYINSTALLER_CMD% --onefile --name "epub_to_md" --add-data "epub_converter.py;." --icon=app_icon.ico epub_to_md.py
 
 echo.
 echo ==========================================
