@@ -93,19 +93,19 @@ chmod +x build.sh
 For GUI version:
 ```bash
 # Windows
-pyinstaller --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py;." epub_to_md_gui.py
+pyinstaller --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py;." --icon=app_icon.ico epub_to_md_gui.py
 
 # Linux/Mac
-pyinstaller --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py:." epub_to_md_gui.py
+pyinstaller --onefile --windowed --name "EPUB_to_MD_GUI" --add-data "epub_converter.py:." --icon=app_icon.ico epub_to_md_gui.py
 ```
 
 For CLI version:
 ```bash
 # Windows
-pyinstaller --onefile --name "epub_to_md" --add-data "epub_converter.py;." epub_to_md.py
+pyinstaller --onefile --name "epub_to_md" --add-data "epub_converter.py;." --icon=app_icon.ico epub_to_md.py
 
 # Linux/Mac
-pyinstaller --onefile --name "epub_to_md" --add-data "epub_converter.py:." epub_to_md.py
+pyinstaller --onefile --name "epub_to_md" --add-data "epub_converter.py:." --icon=app_icon.ico epub_to_md.py
 ```
 
 #### Step 3: Find your executables
