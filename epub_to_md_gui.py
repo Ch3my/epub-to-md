@@ -169,8 +169,8 @@ class EPUBConverterGUI:
         # Configure grid weights
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
+        main_frame.columnconfigure(0, weight=1, uniform='cols')
+        main_frame.columnconfigure(1, weight=1, uniform='cols')
         main_frame.rowconfigure(2, weight=1)  # Log section expands
 
         # ===== HEADER SECTION =====
@@ -222,18 +222,21 @@ class EPUBConverterGUI:
         list_container.rowconfigure(0, weight=1)
 
         self.file_listbox = tk.Listbox(list_container,
-                                       height=6,
+                                       height=8,
                                        bg=self.COLORS['bg_secondary'],
                                        fg=self.COLORS['text'],
                                        selectbackground=self.COLORS['primary'],
                                        selectforeground='white',
-                                       font=('Consolas', 10),
+                                       font=('Segoe UI', 10),
                                        borderwidth=0,
                                        highlightthickness=1,
                                        highlightbackground=self.COLORS['border'],
                                        highlightcolor=self.COLORS['primary'],
                                        activestyle='none')
         self.file_listbox.grid(row=0, column=0, sticky='nsew')
+
+        # Store alternating row color
+        self.row_alt_color = '#f0f0f5'
 
         scrollbar = ttk.Scrollbar(list_container, command=self.file_listbox.yview)
         scrollbar.grid(row=0, column=1, sticky='ns')
@@ -302,11 +305,18 @@ class EPUBConverterGUI:
                                        style='Custom.Horizontal.TProgressbar')
         self.progress.grid(row=1, column=0, sticky='ew', padx=15, pady=(0, 8))
 
-        self.status_label = ttk.Label(progress_card,
+        # Status label container to prevent text from expanding the card
+        status_container = ttk.Frame(progress_card, style='Card.TFrame')
+        status_container.grid(row=2, column=0, sticky='ew', padx=15, pady=(0, 15))
+        status_container.columnconfigure(0, weight=1)
+        status_container.grid_propagate(False)
+        status_container.configure(height=25)
+
+        self.status_label = ttk.Label(status_container,
                                      text="Ready to convert",
                                      style='Status.TLabel')
         self.status_label.configure(background=self.COLORS['bg_secondary'])
-        self.status_label.grid(row=2, column=0, sticky='w', padx=15, pady=(0, 15))
+        self.status_label.grid(row=0, column=0, sticky='w')
 
         # Convert button
         self.convert_btn = ttk.Button(right_column,
@@ -360,9 +370,14 @@ class EPUBConverterGUI:
     def update_file_list(self):
         """Update the listbox with current files"""
         self.file_listbox.delete(0, tk.END)
-        for file in self.epub_files:
+        for i, file in enumerate(self.epub_files):
             filename = os.path.basename(file)
-            self.file_listbox.insert(tk.END, f"  {filename}")
+            # Remove .epub extension for cleaner display
+            display_name = filename[:-5] if filename.lower().endswith('.epub') else filename
+            self.file_listbox.insert(tk.END, f"   {i + 1}.  {display_name}")
+            # Apply alternating row colors
+            if i % 2 == 1:
+                self.file_listbox.itemconfig(i, bg=self.row_alt_color)
 
         # Update file count
         count = len(self.epub_files)
@@ -429,7 +444,9 @@ class EPUBConverterGUI:
         
         for i, epub_file in enumerate(self.epub_files, 1):
             filename = os.path.basename(epub_file)
-            self.status_label.config(text=f"Converting {i}/{total}: {filename}")
+            # Truncate long filenames for status display
+            display_name = filename[:30] + '...' if len(filename) > 33 else filename
+            self.status_label.config(text=f"Converting {i}/{total}: {display_name}")
             self.log(f"[{i}/{total}] Processing: {filename}")
             
             try:
