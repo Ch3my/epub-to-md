@@ -1,10 +1,14 @@
 #!/bin/bash
 # Build script for creating executables from Python files
+# Run this script from the scripts folder or project root
 
 echo "=========================================="
 echo "EPUB to Markdown Converter - Build Script"
 echo "=========================================="
 echo ""
+
+# Navigate to project root (works whether run from scripts/ or root)
+cd "$(dirname "$0")/.."
 
 # Check if PyInstaller is installed
 if ! python -c "import PyInstaller" 2>/dev/null; then
@@ -34,17 +38,21 @@ echo "Building GUI executable..."
 $PYINSTALLER_CMD --onefile \
     --windowed \
     --name "EPUB_to_MD_GUI" \
-    --add-data "epub_converter.py:." \
-    --icon=app_icon.ico \
-    epub_to_md_gui.py
+    --add-data "src/epub_to_md/assets/app_icon.ico:epub_to_md/assets" \
+    --add-data "src/epub_to_md/assets/app_icon.png:epub_to_md/assets" \
+    --add-data "src/epub_to_md/core:epub_to_md/core" \
+    --icon=src/epub_to_md/assets/app_icon.ico \
+    --paths=src \
+    src/epub_to_md/gui/main.py
 
 echo ""
 echo "Building CLI executable..."
 $PYINSTALLER_CMD --onefile \
     --name "epub_to_md" \
-    --add-data "epub_converter.py:." \
-    --icon=app_icon.ico \
-    epub_to_md.py
+    --add-data "src/epub_to_md/core:epub_to_md/core" \
+    --icon=src/epub_to_md/assets/app_icon.ico \
+    --paths=src \
+    src/epub_to_md/cli/main.py
 
 echo ""
 echo "=========================================="

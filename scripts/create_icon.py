@@ -1,7 +1,15 @@
 """Generate app icon for EPUB to Markdown converter"""
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
+
 def create_icon():
+    # Determine output paths relative to this script
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    assets_dir = project_root / "src" / "epub_to_md" / "assets"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+
     # Create icons at multiple sizes
     sizes = [16, 32, 48, 64, 128, 256]
     images = []
@@ -83,17 +91,20 @@ def create_icon():
         images.append(img)
 
     # Save as ICO with multiple sizes
+    ico_path = assets_dir / "app_icon.ico"
     images[0].save(
-        'c:/Github/epub-to-md/app_icon.ico',
+        str(ico_path),
         format='ICO',
         sizes=[(s, s) for s in sizes],
         append_images=images[1:]
     )
 
     # Also save a PNG version
-    images[-1].save('c:/Github/epub-to-md/app_icon.png', format='PNG')
+    png_path = assets_dir / "app_icon.png"
+    images[-1].save(str(png_path), format='PNG')
 
-    print("Icon created: app_icon.ico and app_icon.png")
+    print(f"Icon created: {ico_path} and {png_path}")
+
 
 if __name__ == '__main__':
     create_icon()

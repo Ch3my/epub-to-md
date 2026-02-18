@@ -22,7 +22,7 @@ except (AttributeError, OSError):
         pass
 
 # Import converter functions from shared module
-from epub_converter import convert_epub_to_md
+from epub_to_md.core.converter import convert_epub_to_md
 
 
 def is_system_dark_mode():
@@ -84,7 +84,7 @@ class EPUBConverterGUI:
         self.root.configure(bg=self.COLORS['bg'])
 
         # Set app icon
-        icon_path = Path(__file__).parent / "app_icon.png"
+        icon_path = Path(__file__).parent.parent / "assets" / "app_icon.png"
         if icon_path.exists():
             try:
                 icon_image = tk.PhotoImage(file=str(icon_path))
@@ -388,27 +388,27 @@ class EPUBConverterGUI:
                                                   highlightthickness=0,
                                                   insertbackground=self.COLORS['text'])
         self.log_text.grid(row=1, column=0, sticky='nsew', padx=15, pady=(0, 15))
-        
+
     def select_files(self):
         """Open file dialog to select EPUB files"""
         files = filedialog.askopenfilenames(
             title="Select EPUB Files",
             filetypes=[("EPUB files", "*.epub"), ("All files", "*.*")]
         )
-        
+
         if files:
             self.epub_files.extend(files)
             # Remove duplicates
             self.epub_files = list(set(self.epub_files))
             self.update_file_list()
             self.log(f"Added {len(files)} file(s)")
-            
+
     def clear_files(self):
         """Clear the file list"""
         self.epub_files = []
         self.update_file_list()
         self.log("File list cleared")
-        
+
     def update_file_list(self):
         """Update the listbox with current files"""
         self.file_listbox.delete(0, tk.END)
@@ -429,7 +429,7 @@ class EPUBConverterGUI:
             self.file_count_label.config(text="1 file selected")
         else:
             self.file_count_label.config(text=f"{count} files selected")
-            
+
     def toggle_output_folder(self):
         """Enable/disable output folder selection"""
         if self.use_source_folder.get():
@@ -439,14 +439,14 @@ class EPUBConverterGUI:
         else:
             self.output_btn.config(state='normal')
             self.output_entry.config(state='normal')
-            
+
     def select_output_folder(self):
         """Open folder dialog to select output folder"""
         folder = filedialog.askdirectory(title="Select Output Folder")
         if folder:
             self.output_folder.set(folder)
             self.log(f"Output folder: {folder}")
-            
+
     def log(self, message):
         """Add message to log"""
         self.log_text.insert(tk.END, message + "\n")
@@ -521,39 +521,39 @@ class EPUBConverterGUI:
         if not self.epub_files:
             messagebox.showwarning("No Files", "Please select EPUB files to convert")
             return
-            
+
         if not self.use_source_folder.get() and not self.output_folder.get():
-            messagebox.showwarning("No Output Folder", 
+            messagebox.showwarning("No Output Folder",
                                  "Please select an output folder or use source folder option")
             return
-        
+
         # Disable convert button during conversion
         self.convert_btn.config(state='disabled')
-        
+
         # Start conversion in thread
         thread = threading.Thread(target=self.convert_files, daemon=True)
         thread.start()
-        
+
     def convert_files(self):
         """Convert all selected files"""
         total = len(self.epub_files)
         success_count = 0
         failed_files = []
-        
+
         self.progress['maximum'] = total
         self.progress['value'] = 0
-        
+
         self.log(f"\n{'='*60}")
         self.log(f"Starting conversion of {total} file(s)...")
         self.log(f"{'='*60}\n")
-        
+
         for i, epub_file in enumerate(self.epub_files, 1):
             filename = os.path.basename(epub_file)
             # Truncate long filenames for status display
             display_name = filename[:30] + '...' if len(filename) > 33 else filename
             self.status_label.config(text=f"Converting {i}/{total}: {display_name}")
             self.log(f"[{i}/{total}] Processing: {filename}")
-            
+
             try:
                 # Determine output path
                 if self.use_source_folder.get():
@@ -561,46 +561,46 @@ class EPUBConverterGUI:
                 else:
                     output_dir = Path(self.output_folder.get())
                     output_path = output_dir / Path(epub_file).with_suffix('.md').name
-                
+
                 # Convert file
                 result_path, char_count = convert_epub_to_md(epub_file, str(output_path))
-                
+
                 self.log(f"  ✓ Success: {output_path.name}")
                 self.log(f"    Size: {char_count:,} characters\n")
                 success_count += 1
-                
+
             except Exception as e:
                 self.log(f"  ✗ Failed: {str(e)}\n")
                 failed_files.append(filename)
-            
+
             self.progress['value'] = i
             self.root.update_idletasks()
-        
+
         # Summary
         self.log(f"{'='*60}")
         self.log(f"Conversion Complete!")
         self.log(f"  Successfully converted: {success_count}/{total}")
         self.log(f"  Failed: {len(failed_files)}/{total}")
-        
+
         if failed_files:
             self.log(f"\nFailed files:")
             for file in failed_files:
                 self.log(f"  - {file}")
-        
+
         self.log(f"{'='*60}\n")
-        
+
         # Update status
         self.status_label.config(text=f"Complete: {success_count} converted, {len(failed_files)} failed")
-        
+
         # Re-enable convert button
         self.convert_btn.config(state='normal')
-        
+
         # Show completion message
         if failed_files:
-            messagebox.showinfo("Conversion Complete", 
+            messagebox.showinfo("Conversion Complete",
                               f"Converted {success_count} of {total} files.\n{len(failed_files)} failed.")
         else:
-            messagebox.showinfo("Conversion Complete", 
+            messagebox.showinfo("Conversion Complete",
                               f"Successfully converted all {total} files!")
 
 
